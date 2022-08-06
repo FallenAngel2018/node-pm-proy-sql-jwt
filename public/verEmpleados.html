@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="css/verEmpleado.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+    <title>Lista Empleados</title>
+
+    <style>
+        /* Fuente: https://www.w3schools.com/howto/howto_css_fading_buttons.asp */
+        #addEmpleado {
+          background-color: #ddd;
+          border-color: #1BB004;
+          transition: 0.3s;
+        }
+        
+        #addEmpleado:hover {
+          background-color: #2a9e18; /* #1BB004 */
+          color: white;
+        }
+
+        .fixed-label {
+            font-size: 14px;
+        }
+
+        .fixed-buttons {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body style="background-color: #CFD2CF">
+    <div id="tabla">
+        <table class="table">
+            <center>
+                <h4>Lista de Empleados Registrados</h4>
+            </center>
+
+            <div>
+                <!-- <div style="float: left;" class="form-group col-md-2"> -->
+                    <form id="form_busqueda" class="form-inline my-2 my-lg-0">
+                        <div style="float: left;" class="form-group col-md-2">
+                            <label for="tipo_empleado" class="fixed-label">Seleccione tipo de empleado:</label>
+                            <select id="tipo_empleado" name="tipo_empleado" class="form-control mr-sm-2">
+                                <option selected value="505">Seleccionar...</option>
+                                <option value="0">Normal</option>
+                                <option value="1">Administrador</option>
+                            </select>
+                        </div>
+
+                        <div style="float: left;" class="form-group col-md-2">
+                            <label for="parametro_busqueda" class="mr-sm-2 fixed-label">Cédula o Nombre</label>
+                            <input id="parametro_busqueda" name="parametro_busqueda"
+                                class="form-control mr-sm-2" type="search" placeholder="Buscar" aria-label="Search">
+                        </div>
+
+                        <div style="float: left; margin-top: 32px" class="form-group col-md-1">
+                            <button class="btn btn-outline-success my-2 my-sm-0 mr-sm-2 fixed-label"
+                                type="submit">Buscar</button>
+                        </div>
+
+                        
+                    </form>
+                    
+                <!-- </div> -->
+                <div style="float: right; margin-right: 15px;">
+                    <a href="dashboard.html">
+                        <button style="margin-top: 30px;"
+                            class="w-80 mb-2 btn btn-lg rounded-4 btn-secondary fixed-buttons">
+                                Regresar
+                        </button>
+                    </a>
+                </div>
+                <div style="float: right; margin-right: 60px;">
+                    <a href="ingresoEmpleado.html">
+                        <button id="addEmpleado" style="margin-top: 30px;" style="background-color: #1BB004 !important;"
+                            class="w-80 mb-2 btn btn-lg rounded-4 btn btn-lg fixed-buttons"
+                            >Agregar Empleado</button>
+                    </a>
+                </div>
+                
+            </div>
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Cédula</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acción</th>
+
+                </tr>
+            </thead>
+            <tbody id="tbody_empleados">
+                <!-- <tr>
+                    <th scope="row">1</th>
+                    <td>Andres Fuentes</td>
+                    <td>4578412547</td>
+                    <td>Activo</td>
+                    <td>Administrador</td>
+                    <td><a href="ingresoEmpleado.html"><button class="btn btn-primary">Editar</button></a></td>
+                </tr> -->
+
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
+
+
+<script>
+
+    /*
+        Notas:
+        En heroku, se ve un poco mal el formulario para buscar empleados
+        porque las letras de los labels son un poco grandes,
+        por lo que tal vez tendré que hacerlas de un tamaño fijo como de 13 o 14px,
+        ya que hice las pruebas y se veia un poco mejor.
+    */
+
+    // const BASE_URL = 'http://localhost:3000';
+    // Producción
+    const BASE_URL = 'https://node-pm-proy.herokuapp.com';
+
+    
+    // #region jQuery - Document Ready y Submit
+
+    $(document).ready(async function() {
+
+        $("#tbody_empleados").empty();
+
+        const values = {}
+        values["parametro_busqueda"] = $('#parametro_busqueda').val();
+
+        const employees = await getEmpleados(values);
+
+        // Write a local item..
+        localStorage.setItem("search_parametro_busqueda", "");
+        localStorage.setItem("search_tipo_empleado", "505");
+
+        fill_table(employees)
+
+    });
+
+
+    $( "#form_busqueda" ).submit(async function( event ) {  
+        event.preventDefault();
+
+        // Fuente para arreglar serializeArray() vacío
+        // https://stackoverflow.com/questions/39808965/serializearray-gives-empty-array
+        var form_data_array = $('#form_busqueda').serializeArray() // o también .serialize()
+
+        var values = {};
+        $.each(form_data_array, function(i, field) {
+            values[field.name] = field.value;
+        });
+
+        console.log({ values })
+
+        const { parametro_busqueda } = values
+        const tipo = $('#tipo_empleado').val()
+
+        // Read a local item..
+        var localSt_parametro_busqueda = localStorage.getItem("search_parametro_busqueda");
+        var localSt_tipo_emp = localStorage.getItem("search_tipo_empleado");
+
+
+        // Para ahorrar tiempo de búsqueda y no sobrecargar con peticiones repetidas
+        // a la base de datos, solo se inicia el proceso cuando los parámetros
+        // de búsqueda sean distintos a los usados anteriormente
+        if(parametro_busqueda == localSt_parametro_busqueda
+            && tipo == localSt_tipo_emp) {
+            
+            console.log("NO HIZO LA BÚSQUEDA")
+
+            return
+        }
+
+        // Write a local item..
+        localStorage.setItem("search_parametro_busqueda", parametro_busqueda);
+        localStorage.setItem("search_tipo_empleado", tipo ? tipo : "505");
+
+
+        // Si tipo_empleado es distinto de "505", su valor
+        // se agrega a 'values' para ser enviado, sino su valor se va como null
+        values["tipo_empleado"] = tipo != "505" ? tipo : null
+
+        console.log("PROCESO DE BÚSQUEDA INICIADO")
+
+        const employees = await getEmpleados(values);
+
+        fill_table(employees)
+
+    });
+
+    // #endregion
+
+
+    
+    // #region Async Function - getEmpleados
+    
+    const getEmpleados = async empleado => {
+        try {
+            const API_ENTITY = '/empleado';
+            const API_METHOD_GET = '/';
+
+            const values = {}
+            values["parametro_busqueda"] = $('#parametro_busqueda').val();
+
+
+            const res = await axios.post(`${BASE_URL}${API_ENTITY}${API_METHOD_GET}`, empleado, {
+                headers: {
+                    // Overwrite Axios's automatically set Content-Type
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            $.each(res.data.body, function(i, field) {
+                values[field.name] = field.value;
+            });
+
+            const empleados = res.data.body
+            console.log({ empleados })
+
+            return empleados
+
+        } catch (errors) {
+            console.error(errors);
+        }
+    };
+
+    // #endregion
+
+    
+    // #region Method: fill_table
+
+    function fill_table( results ) {
+        // Fuente: https://stackoverflow.com/questions/4982846/jquery-clear-empty-all-contents-of-tbody-element
+        $("#tbody_empleados").empty();
+        
+        const table = document.getElementById("tbody_empleados");
+
+        let i = 0
+
+        results.forEach( function(item) {
+            let fila = table.insertRow(table.rows.length);
+
+            let fila_index = fila.insertCell(0);
+            fila_index.innerHTML = `<th scope="row">${i+1}</th>`;
+            let nombre = fila.insertCell(1);
+            nombre.innerHTML = item.Nombre;
+            let cedula = fila.insertCell(2);
+            cedula.innerHTML = item.Cedula;
+            let tipoEmpleado = fila.insertCell(3);
+            tipoEmpleado.innerHTML = item.TipoEmpleado == 0 ? "Normal" : "Administrador";
+            let estado = fila.insertCell(4);
+            estado.innerHTML = item.Estado == 0 ? "Inactivo" : "Activo";
+            let btnAccion = fila.insertCell(5);
+            btnAccion.innerHTML =
+            // `<button id="btnAccion_${i+1}"
+            //     onclick="show_photo(this)" value="${item.IdEmpleado}"
+            //         class="btn btn-primary">Ver Imagen</button>`
+            // `<a href="ingresoEmpleado.html">
+            //     <button id="btnEmpleado_${item.IdEmpleado}" value="${item.IdEmpleado}"
+            //     onclick="editarEmpleado(this.value)" class="btn btn-primary">Editar</button>
+            // </a>`
+            `<button id="btnEmpleado_${item.IdEmpleado}" value="${item.IdEmpleado}"
+                onclick="editarEmpleado(this.value)" class="btn btn-primary">Editar</button>`
+            let hidden_idEmpleado = fila.insertCell(6);
+            hidden_idEmpleado.innerHTML = `<input id="hidden_idEmpleado${i+1}" type="hidden"
+                value="${item.IdEmpleado}"></input>`;
+
+            i++
+        });
+    }
+
+    // #endregion
+
+    // #region Method: editarEmpleado
+
+    function editarEmpleado(id) {
+
+        console.log({ id })
+        localStorage.setItem("IdEmpleado", id);
+
+        window.location.href = "ingresoEmpleado.html";
+    }
+
+    //#endregion
+
+</script>

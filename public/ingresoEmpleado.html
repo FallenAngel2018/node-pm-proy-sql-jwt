@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+    <title>Ingreso Empleado</title>
+</head>
+
+<body style="background-color: #CFD2CF">
+    <div class=" modal modal-signin position-static d-block py-5" tabindex="-1" role="dialog" id="modalSignin">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header p-5 pb-4 border-bottom-0">
+                    <!-- <h5 class="modal-title">Modal title</h5> -->
+                    <h2 id="lblTipoOperacion" class="fw-bold mb-0">Ingresa nuevo empleado</h2>
+
+                </div>
+
+                <div class="modal-body p-5 pt-0">
+
+                    <div id="empleado_error" style="display: none"
+                        class="alert alert-danger" role="alert">
+                    </div>
+
+                    <form id="form_empleado" class="">
+
+                        <input type="hidden" id="tipo_operacion" name="tipo_operacion">
+                        <input type="hidden" id="id_empleado" name="id_empleado">
+
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control rounded-3" id="nombre"
+                                name="nombre" placeholder="ejemplo: Andres Fuentes">
+                            <label for="nombre">Nombre</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control rounded-3" id="cedula"
+                                name="cedula" placeholder="ejemplo: 0987854125">
+                            <label for="cedula">Cédula</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control rounded-3" id="clave"
+                                name="clave" placeholder="********">
+                            <label for="clave">Contraseña</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select id="tipo_empleado" name="tipo_empleado"
+                                class="form-control rounded-3">
+                                <option value="505" selected>Seleccionar...</option>
+                                <option value="0">Normal</option>
+                                <option value="1">Administrador</option>
+                            </select>
+                            <label for="tipo_empleado">Tipo de Empleado</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select id="estado" name="estado"
+                                class="form-control rounded-3">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                            <label for="estado">Estado</label>
+                        </div>
+
+                        <div>
+                            <button id="btnGuardar" class="w-100 mb-2 btn btn-lg rounded-3 btn-primary"
+                                type="submit">Guardar</button>
+                        </div>
+                        
+
+                    </form>
+
+                    <!-- <a href="verEmpleados.html"> -->
+                        <button class="w-100 mb-2 btn btn-lg rounded-3 btn-secondary"
+                            onclick="regresar()">Regresar</button>
+                    <!-- </a> -->
+                    <small class="text-muted">Asegurese de ingresar correctamente sus datos</small>
+                    <hr class="my-4">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+
+
+<script>
+
+    // const BASE_URL = 'http://localhost:3000';
+    // Producción
+    const BASE_URL = 'https://node-pm-proy.herokuapp.com';
+    
+
+    var cedula_update = ""
+
+    // #region jQuery - Document Ready y Submit
+
+    $(document).ready( async function() {
+        var id = parseInt(localStorage.getItem("IdEmpleado"));
+
+        console.log({ id })
+
+        if(id != null && id > 0) {
+            $("#tipo_operacion").val("1") && $("#id_empleado").val(id)
+            $("#lblTipoOperacion").text("Actualizar Empleado")
+
+            var tipo_op = parseInt($("#tipo_operacion").val());
+
+            const values = { id_empleado: id }
+            const employees = await getEmpleados(values);
+            const employee = employees[0]
+
+            cedula_update = employee["Cedula"]
+
+            $("#cedula").prop('disabled', true);
+            $("#cedula").val(employee["Cedula"])
+            $("#nombre").val(employee["Nombre"])
+            $("#clave").val("")
+            $("#tipo_empleado").val(employee["TipoEmpleado"])
+            $("#estado").val(employee["Estado"])
+        }
+
+        // localStorage.removeItem("parametro_busqueda");
+        // localStorage.removeItem("estado");
+    });
+
+
+    // Fuente: https://www.javatpoint.com/jquery-submit#:~:text=%E2%86%92%20%E2%86%90%20prev-,jQuery%20submit(),certain%20form%20elements%20have%20focus.
+    $( "#form_empleado" ).submit(async function( event ) {  
+        event.preventDefault();
+
+        document.getElementById("btnGuardar").disabled = true;
+
+
+        // Muestra el div que antes estaba oculto con display:none
+        // y escribe el mensaje que tendrá el div
+        setErrorVisibilidad("none", "")
+
+        // Fuente para arreglar serializeArray() vacío
+        // https://stackoverflow.com/questions/39808965/serializearray-gives-empty-array
+        var form_data_array = $('#form_empleado').serializeArray() // o también .serialize()
+        const tipo = $('#tipo_empleado').val()
+
+        var values = {};
+        $.each(form_data_array, function(i, field) {
+            values[field.name] = field.value;
+        });
+
+        tipo != "505" ?
+            values["tipo_empleado"] = tipo : ""
+
+        console.log({ values })
+
+        var num_cedula = $("#cedula").val()
+        // Fuente: https://stackoverflow.com/questions/1779013/check-if-string-contains-only-digits
+        // Este regex revisa si el campo cedula tiene solo números
+        let es_cedula = /^\d+$/.test(num_cedula);
+        let diez_chars = num_cedula.length >= 10;
+        // Validación solamente del campo cedula
+        if(!es_cedula || !diez_chars) {
+            document.getElementById("btnGuardar").disabled = false;
+            setErrorVisibilidad("block", "Cédula no es válida.")
+
+            return
+        }
+
+        // return
+
+        // Validación de campos
+        const { nombre, cedula, clave, tipo_empleado } = values
+        if(tipo_empleado == "505" || !nombre || !cedula || !clave) {
+            setErrorVisibilidad("block", "Todos los campos son requeridos")
+            document.getElementById("btnGuardar").disabled = false;
+
+            return
+        }
+
+        // Si la operación es de tipo Update...
+        var tipo_op = parseInt($("#tipo_operacion").val());
+        var api_method = "/agregar"
+        if(tipo_op == 1) {
+            values["cedula"] = cedula_update
+            api_method = "/actualizar"
+        }
+
+        const results = await insertarActualizarEmpleado(values, api_method);
+        // Descomposición de los elementos del diccionario 'results'
+        // var results = { IdEmpleado: -1, MsgOperacion: "Prueba de error" }
+        const { MsgOperacion, IdEmpleado } = results
+
+        if(IdEmpleado == -1) {
+            // Muestra el div que antes estaba oculto con display:none
+            // y escribe el mensaje que tendrá el div
+            setErrorVisibilidad("block", MsgOperacion)
+        } 
+
+        if(IdEmpleado == 0){
+            // Muestra el div que antes estaba oculto con display:none
+            // y escribe el mensaje que tendrá el div
+            setErrorVisibilidad("block", MsgOperacion)
+        }
+
+        document.getElementById("btnGuardar").disabled = false;
+
+        if(IdEmpleado > 0) {
+            localStorage.removeItem("IdEmpleado");
+
+            // window.location.href = "dashboard.html";
+            regresar()
+        }
+
+    });
+
+    // #endregion
+
+    
+    
+    // #region Async Function - getEmpleados
+    
+    const getEmpleados = async empleado => {
+        try {
+            const API_ENTITY = '/empleado';
+            const API_METHOD_GET = '/';
+
+            const values = {}
+
+            const res = await axios.post(`${BASE_URL}${API_ENTITY}${API_METHOD_GET}`, empleado, {
+                headers: {
+                    // Overwrite Axios's automatically set Content-Type
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            $.each(res.data.body, function(i, field) {
+                // console.log({ field })
+                // console.log(field["Cedula"])
+
+                values[field.name] = field.value;
+            });
+
+            const empleados = res.data.body
+            console.log({ empleados })
+            // console.log({ values })
+
+            return empleados
+
+        } catch (errors) {
+            console.error(errors);
+        }
+    };
+
+    // #endregion
+    
+    // #region Async Function - insertarActualizarEmpleado
+    
+    const insertarActualizarEmpleado = async (tarea, api_method) => {
+        try {
+            const API_ENTITY = '/empleado';
+            const API_METHOD_POST = api_method; // '/agregar';
+
+            const values = {}
+
+            var res = null
+
+            if (api_method == '/agregar') {
+                res = await axios.post(`${BASE_URL}${API_ENTITY}${API_METHOD_POST}`, tarea, {
+                    headers: {
+                        // Overwrite Axios's automatically set Content-Type
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
+
+            if (api_method == '/actualizar') {
+                res = await axios.patch(`${BASE_URL}${API_ENTITY}${API_METHOD_POST}`, tarea, {
+                    headers: {
+                        // Overwrite Axios's automatically set Content-Type
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
+
+            if (api_method != '/agregar' && api_method != '/actualizar') {
+                return {
+                    MsgOperacion: "Error: Tag del método no es ni post ni patch!",
+                    IdEmpleado: -1
+                }
+            }
+
+            const results = res.data.body
+
+            // Obtiene las keys de la variable results
+            let mapped_data = results.flatMap(x => Object.keys(x));
+
+            $.each(mapped_data, function(i, field) {
+                // mapped_data[i] = { "MsgOperacion", "IdEmpleado" }
+                values[mapped_data[i]] = results[0][mapped_data[i]]
+            });
+
+            console.log({ values })
+
+            return values
+
+        } catch (errors) {
+            console.error(errors);
+        }
+    };
+
+    // #endregion
+
+
+    // #region Method - setErrorVisibilidad
+
+    // display_style = none: Div de error se oculta
+    // display_style = block: Div de error se muestra en la pantalla
+    function setErrorVisibilidad(display_style, msg) {
+        document.getElementById("empleado_error").style.display = display_style;
+        // Escribe el mensaje que tendrá el div
+        document.getElementById("empleado_error").innerHTML = msg;
+    }
+
+    // #endregion
+
+
+    // #region Method: regresar
+
+    function regresar() {
+        // var flag = localStorage.getItem("VentanaDashboard");
+        var flag = (localStorage.getItem("VentanaDashboard") === 'true');
+
+        console.log({ flag })
+
+        let destino = ""
+        flag ? destino = "dashboard.html" : destino = "verEmpleados.html"
+
+        localStorage.removeItem("IdEmpleado");
+        localStorage.removeItem("VentanaDashboard");
+
+        window.location.href = destino;
+        // window.location.href = "verEmpleados.html";
+    }
+
+    //#endregion
+
+
+</script>

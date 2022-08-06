@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+  <title>Ingresar</title>
+</head>
+
+<body style="background-color: #CFD2CF;">
+  <div class=" modal modal-signin position-static d-block py-5" tabindex="-1" role="dialog" id="modalSignin">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content rounded-4 shadow">
+        <div class="modal-header p-5 pb-4 border-bottom-0">
+          <!-- <h5 class="modal-title">Modal title</h5> -->
+          <h2 class="fw-bold mb-0">Ingresa al sistema</h2>
+
+        </div>
+
+        <div class="modal-body p-5 pt-0">
+          <form id="login_form" action="#">
+
+            <div id="login_error" style="display: none" class="alert alert-danger" role="alert">
+            </div>
+
+            <input type="hidden" name="tipo_empleado" value="1">
+
+            <div class="form-floating mb-3">
+              <!-- <input type="email" class="form-control rounded-3" id="floatingInput" name="cedula" -->
+              <input type="text" class="form-control rounded-3" id="floatingInput" name="cedula"
+                placeholder="Ejemplo: 0984562697">
+              <label for="floatingInput">Cédula</label>
+            </div>
+
+            <div class="form-floating mb-3">
+              <input type="password" class="form-control rounded-3" id="floatingPassword" name="clave"
+                placeholder="********">
+              <label for="floatingPassword">Contraseña</label>
+            </div>
+
+            <!-- <a href="dashboard.html">
+            </a> -->
+            <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">Ingresar</button>
+            <small class="text-muted">Asegurese de ingresar correctamente sus datos</small>
+            <hr class="my-4">
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+
+
+<script>
+  
+  const BASE_URL = 'http://localhost:3000';
+  // Producción
+  // const BASE_URL = 'https://node-pm-proy.herokuapp.com';
+  const API_ENTITY = '/empleado';
+  const API_METHOD = '/login';
+
+
+  // Fuente: https://stackoverflow.com/questions/17276206/list-all-js-global-variables-used-by-site-not-all-defined
+  // Listar todas las variables usadas por el js developer
+  /*
+    var ks = ["postMessage","blur","focus","close","frames","self","window","parent","opener","top","length","closed","location","document","origin","name","history","locationbar","menubar","personalbar","scrollbars","statusbar","toolbar","status","frameElement","navigator","customElements","external","screen","innerWidth","innerHeight","scrollX","pageXOffset","scrollY","pageYOffset","screenX","screenY","outerWidth","outerHeight","devicePixelRatio","clientInformation","screenLeft","screenTop","defaultStatus","defaultstatus","styleMedia","onanimationend","onanimationiteration","onanimationstart","onsearch","ontransitionend","onwebkitanimationend","onwebkitanimationiteration","onwebkitanimationstart","onwebkittransitionend","isSecureContext","onabort","onblur","oncancel","oncanplay","oncanplaythrough","onchange","onclick","onclose","oncontextmenu","oncuechange","ondblclick","ondrag","ondragend","ondragenter","ondragleave","ondragover","ondragstart","ondrop","ondurationchange","onemptied","onended","onerror","onfocus","oninput","oninvalid","onkeydown","onkeypress","onkeyup","onload","onloadeddata","onloadedmetadata","onloadstart","onmousedown","onmouseenter","onmouseleave","onmousemove","onmouseout","onmouseover","onmouseup","onmousewheel","onpause","onplay","onplaying","onprogress","onratechange","onreset","onresize","onscroll","onseeked","onseeking","onselect","onstalled","onsubmit","onsuspend","ontimeupdate","ontoggle","onvolumechange","onwaiting","onwheel","onauxclick","ongotpointercapture","onlostpointercapture","onpointerdown","onpointermove","onpointerup","onpointercancel","onpointerover","onpointerout","onpointerenter","onpointerleave","onafterprint","onbeforeprint","onbeforeunload","onhashchange","onlanguagechange","onmessage","onmessageerror","onoffline","ononline","onpagehide","onpageshow","onpopstate","onrejectionhandled","onstorage","onunhandledrejection","onunload","performance","stop","open","alert","confirm","prompt","print","requestAnimationFrame","cancelAnimationFrame","requestIdleCallback","cancelIdleCallback","captureEvents","releaseEvents","getComputedStyle","matchMedia","moveTo","moveBy","resizeTo","resizeBy","getSelection","find","webkitRequestAnimationFrame","webkitCancelAnimationFrame","fetch","btoa","atob","setTimeout","clearTimeout","setInterval","clearInterval","createImageBitmap","scroll","scrollTo","scrollBy","onappinstalled","onbeforeinstallprompt","crypto","ondevicemotion","ondeviceorientation","ondeviceorientationabsolute","indexedDB","webkitStorageInfo","sessionStorage","localStorage","chrome","visualViewport","speechSynthesis","webkitRequestFileSystem","webkitResolveLocalFileSystemURL","addEventListener", "removeEventListener", "openDatabase", "dispatchEvent"]
+    var newKs = []
+    for (key in window) {
+        if(ks.indexOf(key) == -1 && key !== "ks" && key !=="newKs") {
+            newKs.push(key);
+        }
+    }
+    console.log(newKs);
+  */
+
+  // #region jQuery - Document Ready y Submit
+
+  $(document).ready(function() {
+    localStorage.removeItem("usuario");
+    // Tarea: Dashboard.html
+    localStorage.removeItem("parametro_busqueda");
+    localStorage.removeItem("estado");
+    // Empleado: verEmpleados.html
+    localStorage.removeItem("search_parametro_busqueda");
+    localStorage.removeItem("search_tipo_empleado");
+    // Login inedx - Dashboard
+    localStorage.removeItem("token");
+    
+
+  });
+
+
+  // Fuente: https://www.javatpoint.com/jquery-submit#:~:text=%E2%86%92%20%E2%86%90%20prev-,jQuery%20submit(),certain%20form%20elements%20have%20focus.
+  // $( "form" ).submit(function( event ) {  
+  $( "#login_form" ).submit(async function( event ) {  
+      event.preventDefault();
+
+      // Fuente para arreglar serializeArray() vacío
+      // https://stackoverflow.com/questions/39808965/serializearray-gives-empty-array
+      var form_data_array = $('#login_form').serializeArray() // o también .serialize()
+
+      var values = {};
+      $.each(form_data_array, function(i, field) {
+      // $.each($('#login_form').serializeArray(), function(i, field) {
+          values[field.name] = field.value;
+      });
+
+      const results = await login_validation(values);
+      // Descomposición de los elementos del diccionario 'results'
+      // Original
+      // const { login_success, usuario } = results
+      const { login_success, usuario, token } = results
+
+      if(login_success) {
+        localStorage.setItem("usuario", usuario);
+        localStorage.setItem("token", token);
+        window.location.href = "dashboard.html";
+      } else {
+        // Muestra el div que antes estaba oculto con display:none
+        document.getElementById("login_error").style.display = "block";
+        // Escribe el mensaje que tendrá el div
+        document.getElementById("login_error").innerHTML = "Error, empleado no encontrado.";
+      }
+
+      // axios.post('/user', {
+      //   firstName: 'Fred',
+      //   lastName: 'Flintstone'
+      // })
+      // .then(function (response) {
+      //   console.log(response);
+      // })
+      // .catch(function (error) {
+      //   console.log(error);
+      // });
+
+  });
+
+
+  // #endregion
+
+
+  const login_validation = async todo => {
+      try {
+        // const json = JSON.stringify({ cedula: "555533322", clave: "root123" });
+        const res = await axios.post(`${BASE_URL}${API_ENTITY}${API_METHOD}`, todo, {
+          headers: {
+            // Overwrite Axios's automatically set Content-Type
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log("Login success?:", res.data.body)
+
+        const login_success = res.data.body
+
+        return login_success
+
+      } catch (errors) {
+        console.error(errors);
+      }
+  };
+
+  
+
+</script>

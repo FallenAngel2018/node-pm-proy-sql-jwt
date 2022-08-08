@@ -25,16 +25,17 @@ exports.success = function(req, res, data, message) {
 }
 
 exports.error = function(req, res, message) {
-    // Fuente: https://www.sohamkamani.com/nodejs/jwt-authentication/
-    // message = error
-    // if (message instanceof jwt.JsonWebTokenError) {
-    //     // if the error thrown is because the JWT is unauthorized, return a 401 error
-    //     return res.status(403).send({ error:message, body:'' }).end()
-    // }
+    // Fuente: https://www.sohamkamani.com/nodejs/jwt-authentication/ ???
 
     console.log(`message.name : ${message.name}`)
+    console.log(`message.message : ${message.message}`)
+    
+    // Exception body - variable de nombre 'message'
+    // - name
+    // - message
     if (message.name && (message.name == 'TokenExpiredError'
-            || message.name == 'JsonWebTokenError')) {
+            || message.name == 'JsonWebTokenError'
+                || message.message.includes("jwt"))) {// ReferenceError: jwt is not defined
         // console.log(`Error 403 - ${data.message}`) // jwt expired
 
         res.status(403).send({ error: message, body:'' })

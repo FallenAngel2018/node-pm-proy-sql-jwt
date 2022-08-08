@@ -1,4 +1,6 @@
 const storage = require('./storage')
+const jwt = require('jsonwebtoken')
+// require("dotenv").config(); // Carga variables de entorno
 
 function obtenerEmpleados( filtroEmp ) {
     return new Promise((resolve, reject) => {
@@ -29,6 +31,22 @@ function agregarEmpleado( empleado, token ) {
 
 function actualizarEmpleado( empleado ) {
     return new Promise((resolve, reject) => {
+        console.log("controller/Empleado/actualizarEmpleado")
+        console.log("Method jwt.verify executed!!!")
+
+        var secretKey = process.env.Encryption_Secret_key
+        // Sync
+        try {   
+            const decoded = jwt.verify(token, secretKey);
+            console.log({ decoded })
+        }
+        catch (ex) {
+            // ReferenceError: jwt is not defined
+            console.log(ex.message);
+
+            return reject(ex)
+        }
+        
         if (empleado.cedula == null || empleado.cedula == "") {
             return reject('Ingrese una cédula')
         }

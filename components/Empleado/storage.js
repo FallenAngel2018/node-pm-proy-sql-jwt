@@ -156,20 +156,18 @@ const transaction_AgregarActualizar_Empleado = async (empleado, token) => {
     var key = process.env.Encryption_Secret_key + passwd
     var hash = {}
 
-    var secretKey = process.env.Encryption_Secret_key
+    // var secretKey = process.env.Encryption_Secret_key
 
-    console.log("Method jwt.verify executed!!!")
+    // //sync
+    // try {
+    //     const decoded = jwt.verify(token, secretKey);
+    //     console.log({ decoded })
+    // }
+    // catch (ex) {
+    //     console.log(ex.message);
 
-    //sync
-    try {
-        const decoded = jwt.verify(token, secretKey);
-        console.log({ decoded })
-    }
-    catch (ex) {
-        console.log(ex.message);
-
-        return ex
-    }
+    //     return ex
+    // }
 
     try {
         const conn = await pool.getConnection();

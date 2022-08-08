@@ -173,20 +173,33 @@
 
         // return
 
-        // Validación de campos
-        const { nombre, cedula, clave, tipo_empleado } = values
-        if(tipo_empleado == "505" || !nombre || !cedula || !clave) {
-            scrollToTop();
-            setErrorVisibilidad("block", "Todos los campos son requeridos");
-            document.getElementById("btnGuardar").disabled = false;
-
-            return
-        }
+        
 
         // Si la operación es de tipo Update...
         var tipo_op = parseInt($("#tipo_operacion").val());
         var api_method = "/agregar"
+        if(tipo_op == 0) {
+            // Validación de campos
+            const { nombre, cedula, clave, tipo_empleado } = values
+            if(tipo_empleado == "505" || !nombre || !cedula || !clave) {
+                scrollToTop();
+                setErrorVisibilidad("block", "Todos los campos son requeridos");
+                document.getElementById("btnGuardar").disabled = false;
+
+                return
+            }
+        }
+        // Actualizar
         if(tipo_op == 1) {
+            const { nombre, clave, tipo_empleado } = values
+            if(tipo_empleado == "505" || !nombre || !cedula_update || !clave) {
+                scrollToTop();
+                setErrorVisibilidad("block", "Todos los campos son requeridos");
+                document.getElementById("btnGuardar").disabled = false;
+
+                return
+            }
+
             values["cedula"] = cedula_update
             api_method = "/actualizar"
         }

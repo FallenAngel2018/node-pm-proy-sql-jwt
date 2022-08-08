@@ -3,7 +3,7 @@ const sql = require('mssql');
 const fs = require('fs');
 const path = require('path');
 const img_dir = "uploads"
-const jwt = require('jsonwebtoken')
+// const jwt = require('jsonwebtoken')
 
 
 
@@ -16,17 +16,17 @@ async function obtenerTareas( tarea, token ) {
 
     console.log({ tarea })
 
-    var secretKey = process.env.Encryption_Secret_key
-    //sync
-    try {   
-        const decoded = jwt.verify(token, secretKey);
-        console.log({ decoded })
-    }
-    catch (ex) {
-        console.log(ex.message);
+    // var secretKey = process.env.Encryption_Secret_key
+    // //sync
+    // try {   
+    //     const decoded = jwt.verify(token, secretKey);
+    //     console.log({ decoded })
+    // }
+    // catch (ex) {
+    //     console.log(ex.message);
 
-        return ex
-    }
+    //     return ex
+    // }
 
     try {
         const result = await conn.request()
@@ -147,12 +147,12 @@ const transaction_AgregarActualizar_Tarea = async (tarea) => {
 
             // console.log({ image })
 
-            if(tarea.imagen_tipo) {
-                // Fuente: https://www.w3schools.com/jsref/jsref_includes.asp
-                if(tarea.imagen_tipo.toString().toLowerCase().includes("jpg")) tarea.imagen_tipo = "jpg"
-                if(tarea.imagen_tipo.toString().toLowerCase().includes("jpeg")) tarea.imagen_tipo = "jpeg"
-                if(tarea.imagen_tipo.toString().toLowerCase().includes("png")) tarea.imagen_tipo = "png"
-            }
+            // if(tarea.imagen_tipo) {
+            //     // Fuente: https://www.w3schools.com/jsref/jsref_includes.asp
+            //     if(tarea.imagen_tipo.toString().toLowerCase().includes("jpg")) tarea.imagen_tipo = "jpg"
+            //     if(tarea.imagen_tipo.toString().toLowerCase().includes("jpeg")) tarea.imagen_tipo = "jpeg"
+            //     if(tarea.imagen_tipo.toString().toLowerCase().includes("png")) tarea.imagen_tipo = "png"
+            // }
 
             result = await conn.request()
                 .input('id_tarea', tarea.id_tarea) // 0: INSERTAR, 1: ACTUALIZAR

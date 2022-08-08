@@ -33,6 +33,9 @@ routes.post('/', usrs.verificar, function(req, res) {
         .catch((error) => response.error(req, res, error) )
 })
 
+
+// #region Complementary methods for image uploading
+
 // routes.post('/subir_imagen', type, function(req, res) {
 
 //     console.log({ type })
@@ -111,7 +114,8 @@ async function removeUploads() {
 
 } 
 
-  
+// #endregion
+
 
 routes.post('/agregar', function(req, res) {
 

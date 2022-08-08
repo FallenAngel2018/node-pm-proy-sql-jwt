@@ -1,5 +1,5 @@
 {
-  "name": "tiendita-sql",
+  "name": "aquaservice-sql",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -19,7 +19,6 @@
     "moment": "^2.29.3",
     "mssql": "^8.0.1",
     "multer": "^1.4.5-lts.1",
-    "request-ip": "^2.2.0",
-    "rimraf": "^3.0.2"
+    "request-ip": "^2.2.0"
   }
 }

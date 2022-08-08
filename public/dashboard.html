@@ -147,9 +147,9 @@
                 </button>
                 </div>
                 <div class="modal-body">
-                    <h5 id="token_error_message">Generic Error</h4>
+                    <h5 id="token_error_message">Default text - Generic Error</h4>
                         <br>
-                    <h5 id="token_error_advice"></h5>
+                    <h5 id="token_error_advice">Sugerencia: Salga de la app e ingrese con el login nuevamente.</h5>
                 </div>
                 <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -303,10 +303,12 @@
                 
                 $("#token_error_message").text(error.response.data["error"]["message"])
                 
-                if (error.response.data["error"]["name"] == "TokenExpiredError"
-                    || error.response.data["error"]["name"] == "JsonWebTokenError") {
-                    $("#ErrorModalTitle").text(error.response.data["error"]["name"])
-                    $("#token_error_message").text("Token Error - " + error.response.data["error"]["message"])
+                const error_name = error.response.data["error"]["name"]
+                const error_message = error.response.data["error"]["message"]
+
+                if (error_name == "TokenExpiredError" || error_name == "JsonWebTokenError") {
+                    $("#ErrorModalTitle").text(error_name)
+                    $("#token_error_message").text("Token Error - " + error_message)
                     $("#token_error_advice").text("Sugerencia: Salga de la app e ingrese con el login nuevamente.")
                     
                     console.log(error.response.data);

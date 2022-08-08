@@ -5,9 +5,12 @@ const response = require('../../network/response')
 // #region Complementary methods
 
 
+// #region verifyToken
+
 function verifyToken(req, res, next) {
     const bearerHeader = req.headers["authorization"];
 
+    console.log("Method verifyToken")
     console.log(typeof bearerHeader)
     
     if (typeof bearerHeader !== 'undefined') {
@@ -27,6 +30,9 @@ function verifyToken(req, res, next) {
     }
 }
 
+// #endregion
+
+// #region validate_user
 
 async function validate_user(req, res, entidad, origen_request) {
     const os = require('os')
@@ -183,6 +189,9 @@ async function validate_user(req, res, entidad, origen_request) {
     }
     
 }
+
+// #endregion
+
 
 // #endregion
 

@@ -104,6 +104,8 @@
   $( "#login_form" ).submit(async function( event ) {  
       event.preventDefault();
 
+      document.getElementById("login_error").style.display = "none";
+
       // Fuente para arreglar serializeArray() vacío
       // https://stackoverflow.com/questions/39808965/serializearray-gives-empty-array
       var form_data_array = $('#login_form').serializeArray() // o también .serialize()
@@ -125,6 +127,40 @@
         localStorage.setItem("token", token);
         window.location.href = "dashboard.html";
       } else {
+
+        // // Fuente: https://stackoverflow.com/questions/8360130/how-to-make-a-text-flash-in-html-javascript
+        // var f = document.getElementById('login_error');
+        // var x = 0;
+        // const blinking_interval = setInterval(function() {
+        //     // f.style.display = (f.style.display == 'none' ? '' : 'none');
+        //     f.style.display = (f.style.display == 'none' ? 'block' : 'none');
+
+        //     // Fuente: https://stackoverflow.com/questions/2956966/javascript-telling-setinterval-to-only-fire-x-amount-of-times
+        //     if (++x === 4) {
+        //       window.clearInterval(blinking_interval);
+        //     }
+        // }, 30);
+
+        // blink_error_message()
+
+        console.log("Empieza efecto fade in")
+
+        // fade_in_error_message()
+
+        $("#login_error").fadeIn();
+
+        // let initOpacity = 0.1;
+        // // element.style.display = 'block';
+        // // Update the opacity with 0.1 every 10 milliseconds
+        // const timer = setInterval(function () {
+        //   if (initOpacity >= 1) {
+        //     clearInterval(timer);
+        //   }
+        //   f.style.opacity = initOpacity;
+        //   f.style.filter = 'alpha(opacity=' + initOpacity * 100 + ")";
+        //   initOpacity += initOpacity * 0.1;
+        // }, 30);
+
         // Muestra el div que antes estaba oculto con display:none
         document.getElementById("login_error").style.display = "block";
         // Escribe el mensaje que tendrá el div
@@ -168,6 +204,36 @@
         console.error(errors);
       }
   };
+
+
+  function blink_error_message() {
+    // Fuente: https://stackoverflow.com/questions/8360130/how-to-make-a-text-flash-in-html-javascript
+    var error_div = document.getElementById('login_error');
+    var x = 0;
+    const blinking_interval = setInterval(function() {
+        // f.style.display = (f.style.display == 'none' ? '' : 'none');
+        error_div.style.display = (error_div.style.display == 'none' ? 'block' : 'none');
+
+        // Fuente: https://stackoverflow.com/questions/2956966/javascript-telling-setinterval-to-only-fire-x-amount-of-times
+        if (++x === 4) {
+          window.clearInterval(blinking_interval);
+        }
+    }, 50);
+  }
+
+  function fade_in_error_message() {
+    let initOpacity = 0.1;
+    // element.style.display = 'block';
+    // Update the opacity with 0.1 every 10 milliseconds
+    const timer = setInterval(function () {
+      if (initOpacity >= 1) {
+        clearInterval(timer);
+      }
+      f.style.opacity = initOpacity;
+      f.style.filter = 'alpha(opacity=' + initOpacity * 100 + ")";
+      initOpacity += initOpacity * 0.1;
+    }, 30);
+  }
 
   
 

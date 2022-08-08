@@ -164,8 +164,9 @@
         let diez_chars = num_cedula.length >= 10;
         // Validación solamente del campo cedula
         if(!es_cedula || !diez_chars) {
+            scrollToTop();
             document.getElementById("btnGuardar").disabled = false;
-            setErrorVisibilidad("block", "Cédula no es válida.")
+            setErrorVisibilidad("block", "Cédula no es válida.");
 
             return
         }
@@ -175,7 +176,8 @@
         // Validación de campos
         const { nombre, cedula, clave, tipo_empleado } = values
         if(tipo_empleado == "505" || !nombre || !cedula || !clave) {
-            setErrorVisibilidad("block", "Todos los campos son requeridos")
+            scrollToTop();
+            setErrorVisibilidad("block", "Todos los campos son requeridos");
             document.getElementById("btnGuardar").disabled = false;
 
             return
@@ -195,15 +197,17 @@
         const { MsgOperacion, IdEmpleado } = results
 
         if(IdEmpleado == -1) {
+            scrollToTop();
             // Muestra el div que antes estaba oculto con display:none
             // y escribe el mensaje que tendrá el div
-            setErrorVisibilidad("block", MsgOperacion)
+            setErrorVisibilidad("block", MsgOperacion);
         } 
 
-        if(IdEmpleado == 0){
+        if(IdEmpleado == 0) {
+            scrollToTop();
             // Muestra el div que antes estaba oculto con display:none
             // y escribe el mensaje que tendrá el div
-            setErrorVisibilidad("block", MsgOperacion)
+            setErrorVisibilidad("block", MsgOperacion);
         }
 
         document.getElementById("btnGuardar").disabled = false;
@@ -212,7 +216,7 @@
             localStorage.removeItem("IdEmpleado");
 
             // window.location.href = "dashboard.html";
-            regresar()
+            regresar();
         }
 
     });
@@ -327,7 +331,6 @@
 
     // #endregion
 
-
     // #region Method: regresar
 
     function regresar() {
@@ -348,5 +351,14 @@
 
     //#endregion
 
+    // #region Method: scrollToTop
+
+    function scrollToTop() {
+        $('html, body').animate({ scrollTop: 0 }, 'slow', function () {
+            alert("reached top");
+        });
+    }
+
+    // #endregion
 
 </script>

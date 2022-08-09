@@ -62,7 +62,7 @@ function actualizarEmpleado( empleado, token ) {
         console.log("controller/Empleado/actualizarEmpleado")
         console.log("Method jwt.verify executed!!!")
 
-        var secretKey = process.env.Encryption_Secret_key
+        var secretKey = process.env.JwtEncryption_Secret_key
         // Sync
         try {   
             const decoded = jwt.verify(token, secretKey);

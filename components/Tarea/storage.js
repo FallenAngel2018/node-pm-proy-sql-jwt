@@ -11,22 +11,10 @@ require("dotenv").config(); // Carga variables de entorno
 
 // FALTA GET
 // async function obtenerTareas( tarea ) {
-async function obtenerTareas( tarea, token ) {
+async function obtenerTareas( tarea ) {
     const conn = await pool.getConnection();
 
     console.log({ tarea })
-
-    // var secretKey = process.env.Encryption_Secret_key
-    // //sync
-    // try {   
-    //     const decoded = jwt.verify(token, secretKey);
-    //     console.log({ decoded })
-    // }
-    // catch (ex) {
-    //     console.log(ex.message);
-
-    //     return ex
-    // }
 
     try {
         const result = await conn.request()
@@ -49,7 +37,6 @@ async function obtenerTareas( tarea, token ) {
 
                 if(element["Imagen"] != null) {
                     var originalBase64ImageStr = Buffer.from(element["Imagen"], 'utf8');
-                    // decodedImage = originalBase64ImageStr.toString('base64');
                     decodedImage = Buffer.from(originalBase64ImageStr, 'base64');
                     decodedImage2 = originalBase64ImageStr.toString('base64');
 
@@ -64,7 +51,6 @@ async function obtenerTareas( tarea, token ) {
                     const ext = element["Extension"]
                     var img_varbinary = `data:image/png;base64,${b64}`; // decodedImage2
                     console.log({ ext })
-                    // console.log({ b64 })
                     var str = b64.substring(0,30);
                     console.log({ str })
 

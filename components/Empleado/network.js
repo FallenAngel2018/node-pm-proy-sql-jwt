@@ -44,7 +44,7 @@ routes.post('/agregar', usrs.verificar, function(req, res) {
 
                 return
             }
-            
+
             response.success(req, res, data, response.success_message())
         })
         .catch((error) => response.error(req, res, error) )
@@ -79,7 +79,6 @@ routes.delete('/eliminar', function(req, res) {
 
     controller.eliminarEmpleado( req.body )
         .then((data) => {
-            
 
             response.success(req, res, data, response.success_message());
 

@@ -59,7 +59,7 @@ function validate_employee( empleado ) {
         error_messages.push('El campo cédula o clave tiene más de 100 caracteres.')
     }
 
-    console.log({ error_messages })
+    // console.log({ error_messages })
 
     return { errors_flag, error_messages }
 }

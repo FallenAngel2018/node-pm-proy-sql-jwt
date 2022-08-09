@@ -9,7 +9,7 @@ function obtenerTareas( filtroTarea, token ) {
         
         console.log("controller/Tarea/obtenerTareas")
 
-        var secretKey = process.env.Encryption_Secret_key
+        var secretKey = process.env.JwtEncryption_Secret_key
         // Sync
         try {   
             const decoded = jwt.verify(token, secretKey);

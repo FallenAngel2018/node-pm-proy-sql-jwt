@@ -71,41 +71,27 @@ async function loginEmpleado( filtroEmp ) {
         
         const hash = { iv: results[0]["Clave_IV"], password: results[0]["Clave"] }
         const text = passwd_decrypt(hash, filtroEmp.clave);
-        console.log("login_success?:", text == filtroEmp.clave)
+        const login_success = text == filtroEmp.clave
 
-        // return {
-        //     login_success: text == filtroEmp.clave,
-        //     usuario: results[0]["NombreUsuario"]
-        // }
 
-        var secretKey = process.env.Encryption_Secret_key
-        // var token = ''
-        // const token = 
-        // jwt.sign({ user: filtroEmp }, secretKey,
-        //     { expiresIn: '40s' }, (err, json_w_token) => {
-        //     if(!err) {
-        //         token = json_w_token
-        //         console.log({ token })
-
-        //         // return token
-        //     }
-
-        //     if(err) {
-        //         return err
-        //     }
-
-        //     // return !err ? token : ""
-        // });
+        var secretKey = process.env.JwtEncryption_Secret_key
 
         filtroEmp["usuario"] = results[0]["NombreUsuario"]
 
+        // Fuente: https://stackoverflow.com/questions/208105/how-do-i-remove-a-property-from-a-javascript-object
+        delete filtroEmp['clave'];
+
         // Fuente: https://stackoverflow.com/questions/56855440/in-jwt-the-sign-method
         // Synchronous
-        const syncToken = jwt.sign({ user: filtroEmp }, secretKey, { expiresIn: '90s' });
+        var syncToken = null
+        login_success ? syncToken = jwt.sign({ user: filtroEmp }, secretKey, { expiresIn: '90s' }) 
+                      : syncToken = null
 
         const response_body = {
-            login_success: text == filtroEmp.clave,
+            login_success: login_success,
             usuario: results[0]["NombreUsuario"],
+            // Solo se envia el token si la clave del login es correcta
+            // token: login_success ? syncToken : null // token, syncToken
             token: syncToken // token, syncToken
         }
         
@@ -136,7 +122,6 @@ async function loginEmpleado( filtroEmp ) {
 // async function agregarEmpleado( empleado ) {
 async function agregarEmpleado( empleado, token ) {
     console.log({ empleado })
-    console.log({ token })
 
     // return await transaction_AgregarActualizar_Empleado(empleado)
     return await transaction_AgregarActualizar_Empleado(empleado, token)
@@ -144,7 +129,6 @@ async function agregarEmpleado( empleado, token ) {
 
 async function actualizarEmpleado( empleado, token ) {
     console.log({ empleado })
-    console.log({ token })
 
     return await transaction_AgregarActualizar_Empleado(empleado, token)
 }
@@ -157,19 +141,6 @@ const transaction_AgregarActualizar_Empleado = async (empleado, token) => {
     var passwd = empleado.clave;
     var key = process.env.Encryption_Secret_key + passwd
     var hash = {}
-
-    // var secretKey = process.env.Encryption_Secret_key
-
-    // //sync
-    // try {
-    //     const decoded = jwt.verify(token, secretKey);
-    //     console.log({ decoded })
-    // }
-    // catch (ex) {
-    //     console.log(ex.message);
-
-    //     return ex
-    // }
 
     try {
         const conn = await pool.getConnection();

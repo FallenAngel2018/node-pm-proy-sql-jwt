@@ -107,7 +107,6 @@
       event.preventDefault();
 
       try {
-        // Mientras se carga una respuesta para el login, se bloquean los campos
 
         document.getElementById("login_error").style.display = "none";
 
@@ -115,6 +114,7 @@
         // https://stackoverflow.com/questions/39808965/serializearray-gives-empty-array
         var form_data_array = $('#login_form').serializeArray() // o también .serialize()
 
+        // Mientras se carga una respuesta para el login, se bloquean los campos
         blockLoginFields( true );
       
         var values = {};

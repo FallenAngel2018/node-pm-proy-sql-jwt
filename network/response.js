@@ -2,11 +2,21 @@ exports.success = function(req, res, data, message) {
     // 'TokenExpiredError': jwt expired
     // 'JsonWebTokenError': jwt malformed
     console.log(`data.name : ${data.name}`)
+    // if (data.name && (data.name == 'TokenExpiredError'
+    //         || data.name == 'JsonWebTokenError')) {
+    //     // console.log(`Error 403 - ${data.message}`) // jwt expired
+
+    //     res.status(403).send({ error: data, body: {}, message: data.message })
+
+    //     return
+    // }
+
     if (data.name && (data.name == 'TokenExpiredError'
-            || data.name == 'JsonWebTokenError')) {
+            || data.name == 'JsonWebTokenError'
+                || data.message.includes("jwt"))) {// ReferenceError: jwt is not defined
         // console.log(`Error 403 - ${data.message}`) // jwt expired
 
-        res.status(403).send({ error: data, body: {}, message: data.message })
+        res.status(403).send({ error: data, body:'' })
 
         return
     }
@@ -27,8 +37,8 @@ exports.success = function(req, res, data, message) {
 exports.error = function(req, res, message) {
     // Fuente: https://www.sohamkamani.com/nodejs/jwt-authentication/ ???
 
-    console.log(`message.name : ${message.name}`)
-    console.log(`message.message : ${message.message}`)
+    // console.log(`message.name : ${message.name}`)
+    // console.log(`message.message : ${message.message}`)
     
     // Exception body - variable de nombre 'message'
     // - name
@@ -36,7 +46,10 @@ exports.error = function(req, res, message) {
     if (message.name && (message.name == 'TokenExpiredError'
             || message.name == 'JsonWebTokenError'
                 || message.message.includes("jwt"))) {// ReferenceError: jwt is not defined
-        // console.log(`Error 403 - ${data.message}`) // jwt expired
+
+        // Ejemplo message.message: JsonWebTokenError - jwt malformed
+        const custom_message = `${message.name} - ${message.message}`
+        message.message = custom_message
 
         res.status(403).send({ error: message, body:'' })
 

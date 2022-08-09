@@ -35,25 +35,40 @@ routes.post('/agregar', usrs.verificar, function(req, res) {
     controller.agregarEmpleado( req.body, req.token )
         // .then((data) => response.success(req, res, data, response.success_message()))
         .then((data) => {
-            if (data.name && data.name == 'TokenExpiredError') {
-                // console.log(`data.name : ${data.name}`) // TokenExpiredError
+            if (data.name && (data.name == 'TokenExpiredError'
+                    || data.name == 'JsonWebTokenError'
+                        || data.message.includes("jwt"))) {// ReferenceError: jwt is not defined
                 // console.log(`Error 403 - ${data.message}`) // jwt expired
 
                 res.status(403).send({ error: data, body: {}, message: data.message })
 
                 return
             }
+            
             response.success(req, res, data, response.success_message())
         })
         .catch((error) => response.error(req, res, error) )
 })
 
-routes.patch('/actualizar', function(req, res) {
+// routes.patch('/actualizar', function(req, res) {
+routes.patch('/actualizar', usrs.verificar, function(req, res) {
     
     usrs.validar(req, res, entidad, "/actualizar")
 
-    controller.actualizarEmpleado( req.body )
-        .then((data) => response.success(req, res, data, response.success_message()))
+    controller.actualizarEmpleado( req.body, req.token )
+        .then((data) => {
+            if (data.name && data.name == 'TokenExpiredError') {
+                // console.log(`data.name : ${data.name}`) // TokenExpiredError
+                // console.log(`Error 403 - ${data.message}`) // jwt expired
+
+                res.status(403).send({ error: data, body: {}, message: data.message });
+
+                return
+            }
+
+            response.success(req, res, data, response.success_message());
+
+        })
         .catch((error) => response.error(req, res, error) )
 
 })
@@ -63,7 +78,12 @@ routes.delete('/eliminar', function(req, res) {
     usrs.validar(req, res, entidad, "/eliminar")
 
     controller.eliminarEmpleado( req.body )
-        .then((data) => response.success(req, res, data, response.success_message()))
+        .then((data) => {
+            
+
+            response.success(req, res, data, response.success_message());
+
+        })
         .catch((error) => response.error(req, res, error) )
 })
 

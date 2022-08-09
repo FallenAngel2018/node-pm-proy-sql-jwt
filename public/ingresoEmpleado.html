@@ -205,6 +205,38 @@
         }
 
         const results = await insertarActualizarEmpleado(values, api_method);
+
+        // Si hay error en el server...
+        if (results.status && results.status == 500) {
+            const { error, body } = results.data
+            
+            scrollToTop();
+            // Muestra el div que antes estaba oculto con display:none
+            // y escribe el mensaje que tendrá el div
+            setErrorVisibilidad("block", error);
+            
+            document.getElementById("btnGuardar").disabled = false;
+
+            return
+        }
+
+        // Si hay error relacionado con autorización jwt...
+        if (results.status && results.status == 403) {
+            const { body, error } = results.data
+
+            console.log({ body })
+            console.log({ error })
+
+            scrollToTop();
+            // Muestra el div que antes estaba oculto con display:none
+            // y escribe el mensaje que tendrá el div
+            setErrorVisibilidad("block", error["message"]);
+
+            document.getElementById("btnGuardar").disabled = false;
+
+            return
+        }
+
         // Descomposición de los elementos del diccionario 'results'
         // var results = { IdEmpleado: -1, MsgOperacion: "Prueba de error" }
         const { MsgOperacion, IdEmpleado } = results
@@ -299,21 +331,21 @@
                     const error_name = error.response.data["error"]["name"]
                     const error_message = error.response.data["error"]["message"]
 
-                    if (error_name == "TokenExpiredError" || error_name == "JsonWebTokenError") {
-                        // $("#ErrorModalTitle").text(error_name)
-                        // $("#empleado_error").text("Token Error - " + error_message)
-                        setErrorVisibilidad("block", error_message);
+                    // if (error_name == "TokenExpiredError" || error_name == "JsonWebTokenError") {
+                    //     // $("#ErrorModalTitle").text(error_name)
+                    //     // $("#empleado_error").text("Token Error - " + error_message)
+                    //     setErrorVisibilidad("block", error_message);
 
                         
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
-                    }
+                    //     console.log(error.response.data);
+                    //     console.log(error.response.status);
+                    //     console.log(error.response.headers);
+                    // }
 
                     // $("#ErrorModal").modal({show: true})
-                    document.getElementById("btnGuardar").disabled = false;
+                    // document.getElementById("btnGuardar").disabled = false;
 
-                    return
+                    return error
                 });
             }
 
@@ -321,33 +353,14 @@
                 res = await axios.patch(`${BASE_URL}${API_ENTITY}${API_METHOD_POST}`, tarea, {
                     headers: {
                         // Overwrite Axios's automatically set Content-Type
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 })
                 .catch(function (error) {
-                
-                    scrollToTop();
-                    $("#empleado_error").text(error.response.data["error"]["message"])
-                    
-                    const error_response = error.response
-                    const error_name = error.response.data["error"]["name"]
-                    const error_message = error.response.data["error"]["message"]
+                    const response = error.response
 
-                    console.log({ error_response })
-
-                    if (error_name == "TokenExpiredError" || error_name == "JsonWebTokenError") {
-                        // $("#ErrorModalTitle").text(error_name)
-                        $("#empleado_error").text("Token Error - " + error_message)
-                        
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
-                    }
-
-                    // $("#ErrorModal").modal({show: true})
-                    document.getElementById("btnGuardar").disabled = false;
-
-                    return
+                    return response
                 });
             }
 
@@ -356,6 +369,11 @@
                     MsgOperacion: "Error: Tag del método no es ni post ni patch!",
                     IdEmpleado: -1
                 }
+            }
+
+            // Si hay error en el server
+            if (res.status && (res.status == 500 || res.status == 403)) {
+                return res
             }
 
             const results = res.data.body

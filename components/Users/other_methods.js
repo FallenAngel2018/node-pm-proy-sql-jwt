@@ -32,6 +32,40 @@ function verifyToken(req, res, next) {
 
 // #endregion
 
+
+// #region validate_employee
+
+function validate_employee( empleado ) {
+
+    var errors_flag = false
+    var error_messages = []
+
+    // console.log({ empleado })
+
+    if (empleado.cedula == null || empleado.cedula == ""
+        || empleado.clave == null || empleado.clave == "") {
+            errors_flag = true
+            error_messages.push('Ingrese ambos campos')
+        // return reject('Ingrese ambos campos')
+    }
+
+    if (empleado.cedula.length < 10) {
+        errors_flag = true
+        error_messages.push('El campo cédula debe tener al menos 10 caracteres.')
+    }
+
+    if (empleado.cedula.length > 99 || empleado.clave.length > 99) {
+        errors_flag = true
+        error_messages.push('El campo cédula o clave tiene más de 100 caracteres.')
+    }
+
+    console.log({ error_messages })
+
+    return { errors_flag, error_messages }
+}
+
+// #endregion
+
 // #region validate_user
 
 async function validate_user(req, res, entidad, origen_request) {
@@ -199,6 +233,7 @@ async function validate_user(req, res, entidad, origen_request) {
 
 
 module.exports = {
+    verificar_empleado: validate_employee,
     validar: validate_user,
     verificar: verifyToken,
 }

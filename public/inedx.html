@@ -32,20 +32,22 @@
 
             <div class="form-floating mb-3">
               <!-- <input type="email" class="form-control rounded-3" id="floatingInput" name="cedula" -->
-              <input type="text" class="form-control rounded-3" id="floatingInput" name="cedula"
-                placeholder="Ejemplo: 0984562697">
+              <input type="text" class="form-control rounded-3" id="floatingInput" 
+                name="cedula" required placeholder="Ejemplo: 0984562697">
               <label for="floatingInput">Cédula</label>
             </div>
 
             <div class="form-floating mb-3">
-              <input type="password" class="form-control rounded-3" id="floatingPassword" name="clave"
+              <input type="password" class="form-control rounded-3"
+                id="floatingPassword" name="clave" required
                 placeholder="********">
               <label for="floatingPassword">Contraseña</label>
             </div>
 
             <!-- <a href="dashboard.html">
             </a> -->
-            <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">Ingresar</button>
+            <button id="btnLogin"
+              class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">Ingresar</button>
             <small class="text-muted">Asegurese de ingresar correctamente sus datos</small>
             <hr class="my-4">
 
@@ -104,68 +106,105 @@
   $( "#login_form" ).submit(async function( event ) {  
       event.preventDefault();
 
-      document.getElementById("login_error").style.display = "none";
+      try {
+        // Mientras se carga una respuesta para el login, se bloquean los campos
 
-      // Fuente para arreglar serializeArray() vacío
-      // https://stackoverflow.com/questions/39808965/serializearray-gives-empty-array
-      var form_data_array = $('#login_form').serializeArray() // o también .serialize()
+        document.getElementById("login_error").style.display = "none";
 
-      var values = {};
-      $.each(form_data_array, function(i, field) {
-      // $.each($('#login_form').serializeArray(), function(i, field) {
-          values[field.name] = field.value;
-      });
+        // Fuente para arreglar serializeArray() vacío
+        // https://stackoverflow.com/questions/39808965/serializearray-gives-empty-array
+        var form_data_array = $('#login_form').serializeArray() // o también .serialize()
 
-      const results = await login_validation(values);
-      // Descomposición de los elementos del diccionario 'results'
-      // Original
-      // const { login_success, usuario } = results
-      const { login_success, usuario, token } = results
+        blockLoginFields( true );
+      
+        var values = {};
+        $.each(form_data_array, function(i, field) {
+        // $.each($('#login_form').serializeArray(), function(i, field) {
+            values[field.name] = field.value;
+        });
 
-      if(login_success) {
-        localStorage.setItem("usuario", usuario);
-        localStorage.setItem("token", token);
-        window.location.href = "dashboard.html";
-      } else {
+        // console.log({ values })
 
-        // // Fuente: https://stackoverflow.com/questions/8360130/how-to-make-a-text-flash-in-html-javascript
-        // var f = document.getElementById('login_error');
-        // var x = 0;
-        // const blinking_interval = setInterval(function() {
-        //     // f.style.display = (f.style.display == 'none' ? '' : 'none');
-        //     f.style.display = (f.style.display == 'none' ? 'block' : 'none');
+        const results = await login_validation(values);
 
-        //     // Fuente: https://stackoverflow.com/questions/2956966/javascript-telling-setinterval-to-only-fire-x-amount-of-times
-        //     if (++x === 4) {
-        //       window.clearInterval(blinking_interval);
-        //     }
-        // }, 30);
+        // Si ocurrió un error en el server (NodeJs)
+        if (results.status == 500) {
+          
+          const { error, body } = results.data
 
-        // blink_error_message()
+          console.log({ error })
+          console.log({ body })
 
-        console.log("Empieza efecto fade in")
+          // $("#login_error").fadeIn();
 
-        // fade_in_error_message()
+          blockLoginFields( false );
+
+          var errors_summary = "";
+          var ul_start = `<ul style="margin: 0px">`
+          jQuery.each(error, function(item) {
+            // summary += error[item] + '<br />' +"\n";
+            errors_summary += "<li>" + error[item] + "</li>";
+          });
+          var ul_end = "</ul>"
+
+          const summary_list = ul_start + errors_summary + ul_end
+
+          // $("#login_error").fadeIn().html(summary);
+          $("#login_error").fadeIn().html(summary_list);
+
+          // Muestra el div que antes estaba oculto con display:none
+          // document.getElementById("login_error").style.display = "block";
+
+          // Escribe el mensaje que tendrá el div
+          // document.getElementById("login_error").innerHTML = error;
+          
+          return
+        }
+
+        // Descomposición de los elementos del diccionario 'results'
+        // Original
+        // const { login_success, usuario } = results
+        const { login_success, usuario, token } = results
+
+        if(login_success) {
+          localStorage.setItem("usuario", usuario);
+          localStorage.setItem("token", token);
+          window.location.href = "dashboard.html";
+        } else {
+
+          // blink_error_message()
+
+          // fade_in_error_message()
+
+          $("#login_error").fadeIn();
+
+          blockLoginFields( false );
+
+
+          // Muestra el div que antes estaba oculto con display:none
+          document.getElementById("login_error").style.display = "block";
+          // Escribe el mensaje que tendrá el div
+          document.getElementById("login_error").innerHTML = "Error, empleado no encontrado.";
+        }
+
+      } catch (error) {
 
         $("#login_error").fadeIn();
 
-        // let initOpacity = 0.1;
-        // // element.style.display = 'block';
-        // // Update the opacity with 0.1 every 10 milliseconds
-        // const timer = setInterval(function () {
-        //   if (initOpacity >= 1) {
-        //     clearInterval(timer);
-        //   }
-        //   f.style.opacity = initOpacity;
-        //   f.style.filter = 'alpha(opacity=' + initOpacity * 100 + ")";
-        //   initOpacity += initOpacity * 0.1;
-        // }, 30);
+        blockLoginFields( false );
+
+        console.log({ error });
+
 
         // Muestra el div que antes estaba oculto con display:none
         document.getElementById("login_error").style.display = "block";
         // Escribe el mensaje que tendrá el div
-        document.getElementById("login_error").innerHTML = "Error, empleado no encontrado.";
+        document.getElementById("login_error").innerHTML = "Error.";
+        
+        return
       }
+
+      
 
       // axios.post('/user', {
       //   firstName: 'Fred',
@@ -192,7 +231,23 @@
             // Overwrite Axios's automatically set Content-Type
             'Content-Type': 'application/json'
           }
+        })
+        .catch(function (error) {
+
+          const response = error.response
+          // const response = error.response.data // Devuelve los errores desde NodeJs
+          console.log({ error })
+          console.log({ response })
+
+          console.log(response.error)
+
+          return response
+
         });
+
+        if (res.status == 500) {
+          return res
+        }
 
         console.log("Login success?:", res.data.body)
 
@@ -205,6 +260,19 @@
       }
   };
 
+  // true para bloquear
+  // false para desbloquear
+  function blockLoginFields( state ) {
+
+    // Cédula
+    $("#floatingInput").prop('disabled', state);
+    // Clave
+    $("#floatingPassword").prop('disabled', state);
+    $("#btnLogin").prop('disabled', state);
+
+  }
+
+  // #region Methods for error messages: blink_error_message, fade_in_error_message
 
   function blink_error_message() {
     // Fuente: https://stackoverflow.com/questions/8360130/how-to-make-a-text-flash-in-html-javascript
@@ -234,6 +302,9 @@
       initOpacity += initOpacity * 0.1;
     }, 30);
   }
+
+  // #endregion
+
 
   
 

@@ -130,7 +130,7 @@ routes.patch('/actualizar', function(req, res) {
     
     usrs.validar(req, res, entidad, "/actualizar")
 
-    controller.actualizarTarea( req.body )
+    controller.actualizarTarea( req.body, req.token )
         .then((data) => response.success(req, res, data, data[0]["MsgOperacion"]))
         .catch((error) => response.error(req, res, error) )
 

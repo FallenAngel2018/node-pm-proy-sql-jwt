@@ -101,7 +101,7 @@ async function loginEmpleado( filtroEmp ) {
 
         // Fuente: https://stackoverflow.com/questions/56855440/in-jwt-the-sign-method
         // Synchronous
-        const syncToken = jwt.sign({ user: filtroEmp }, secretKey, { expiresIn: '40s' });
+        const syncToken = jwt.sign({ user: filtroEmp }, secretKey, { expiresIn: '90s' });
 
         const response_body = {
             login_success: text == filtroEmp.clave,
@@ -136,6 +136,7 @@ async function loginEmpleado( filtroEmp ) {
 // async function agregarEmpleado( empleado ) {
 async function agregarEmpleado( empleado, token ) {
     console.log({ empleado })
+    console.log({ token })
 
     // return await transaction_AgregarActualizar_Empleado(empleado)
     return await transaction_AgregarActualizar_Empleado(empleado, token)
@@ -143,6 +144,7 @@ async function agregarEmpleado( empleado, token ) {
 
 async function actualizarEmpleado( empleado, token ) {
     console.log({ empleado })
+    console.log({ token })
 
     return await transaction_AgregarActualizar_Empleado(empleado, token)
 }

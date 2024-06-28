@@ -21,10 +21,10 @@ exports.success = function(req, res, data, message) {
         return
     }
 
-    var mensaje = "Este es un mensaje de tipo String???"
-    var array_empty = []
-    var body_empty = { }
-    var body_full = { error: data, body: {} }
+    // var mensaje = "Este es un mensaje de tipo String???"
+    // var array_empty = []
+    // var body_empty = { }
+    // var body_full = { error: data, body: {} }
 
     // console.log("typeof mensaje:", typeof mensaje)
     // console.log("typeof array_empty:", typeof array_empty)
